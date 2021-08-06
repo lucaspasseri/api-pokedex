@@ -43,3 +43,18 @@ export async function login(email: string, password: string): Promise<string>{
 
   return token;
 }
+
+export async function authenticate(token: string): Promise<User>{
+  const sessionRepository = getRepository(Session);
+
+  const session = await sessionRepository.findOne({
+    where: {
+      token
+    },
+    relations: ["user"]
+  });
+
+  if(!session) return null;
+
+  return session.user;
+}
