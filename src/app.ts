@@ -23,6 +23,9 @@ app.post("/db-populate-with-pokemons", dbController.populate);
 
 app.get("/pokemons", middlewareAuthenticate, pokemonController.getAll);
 
+app.post("/my-pokemons/:id/add", middlewareAuthenticate, pokemonController.addToMyPokemons);
+app.post("/my-pokemons/:id/remove", middlewareAuthenticate, pokemonController.removeFromMyPokemons);
+
 
 export async function init () { 
   await connectDatabase();

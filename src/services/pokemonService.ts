@@ -8,3 +8,13 @@ export async function getAll(): Promise<Pokemon[]>{
 
     return pokemons;
 }
+
+export async function addOne(pokemonId: number){
+    const repository = getRepository(Pokemon);
+    const pokemon = await repository.update({id: pokemonId}, {inMyPokemons: true});
+}
+
+export async function removeOne(pokemonId: number){
+    const repository = getRepository(Pokemon);
+    const pokemon = await repository.update({id: pokemonId}, {inMyPokemons: false});
+}
