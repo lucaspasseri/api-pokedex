@@ -14,6 +14,7 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
+  await clearDatabase();
   await getConnection().close();
 });
 
@@ -56,7 +57,7 @@ describe("POST /sign-up", () => {
 
   it("should answer with 409 when an email is already registered.", async () => {
 
-    const user = await createUserWithParams("lucas@gmail.com", "123123");
+    await createUserWithParams("lucas@gmail.com", "123123");
 
     const body = {email:"lucas@gmail.com", password:"123123", confirmPassword: "123123"};
 
@@ -74,4 +75,54 @@ describe("POST /sign-up", () => {
     expect(response.status).toBe(201);
   });
 
+});
+
+describe("POST /sign-in", () => {
+  it("should answer with 400 when an invalid email is passed.", async () => {
+
+    const body = {email:"123123", password:"123123"};
+
+    const response = await supertest(app).post("/sign-in").send(body);
+
+    expect(response.status).toBe(400);
+  });
+
+  it("should answer with 401 when an email is not registred.", async () => {
+
+    const body = {email:"lucas@gmail.com", password:"123123"};
+
+    const response = await supertest(app).post("/sign-in").send(body);
+
+    expect(response.status).toBe(401);
+  });
+
+  it(`should answer with 401 when an email is registred but
+    the password does not match.`, async () => {
+
+    await createUserWithParams("lucas@gmail.com", "123123");
+
+    const body = {email:"lucas@gmail.com", password:"123456"};
+
+    const response = await supertest(app).post("/sign-in").send(body);
+
+    expect(response.status).toBe(401);
+  });
+
+  it(`should answer with a token and status 200 when everything
+    is correct.`, async () => {
+
+    await createUserWithParams("lucas@gmail.com", "123123");
+
+    const body = {email:"lucas@gmail.com", password:"123123"};
+
+    const response = await supertest(app).post("/sign-in").send(body);   
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        token: expect.any(String)
+      })
+    );
+
+    expect(response.status).toBe(200);
+  });
 });

@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid";
 import { getRepository } from "typeorm";
 
 import User from "../entities/User";
+import Session from "../entities/Session";
 
 export async function getUsers () {
   const users = await getRepository(User).find({
@@ -24,4 +25,21 @@ export async function createUser(email: string,  password: string): Promise<User
     return null;
   }
   return result;
+}
+
+export async function login(email: string, password: string): Promise<string>{
+  const userRepository =  getRepository(User);
+  const sessionRepository = getRepository(Session);
+
+  const user = await userRepository.findOne({ email });
+
+  if(!user) return null;
+
+  if(!bcrypt.compareSync(password, user.password)) return null;
+
+  const token = uuid();
+
+  await sessionRepository.insert({userId: user.id, token});
+
+  return token;
 }

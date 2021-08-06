@@ -15,6 +15,7 @@ app.use(express.json());
 app.get("/users", userController.getUsers);
 //app.get("/populate-with-pokemons", bdController.populate);
 app.post("/sign-up", userController.newUser);
+app.post("/sign-in", userController.login);
 
 
 export async function init () {
